@@ -109,7 +109,8 @@ SUB,
 MUL,
 DIV,
 STO,
-PRINT
+PRINT,
+JF
 } Operador;
 
 struct Quadrupla {
@@ -190,6 +191,9 @@ Stm  : _V _ATRIB E {
 		   }
      | _PRINT _ABREPAR E _FECHAPAR {
                    gera(PRINT,$3.intval, NADA, NADA);
+		   printf("\n");}
+     | _IF _ABREPAR E _FECHAPAR {
+                   gera(JF,$3.intval,prox, NADA);
 		   printf("\n");}
      ;
 E    : E _MAIS T {
