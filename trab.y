@@ -258,7 +258,7 @@ S    : _IF _ABREPAR E _FECHAPAR _THEN M B _ELSE M B {
                    $1.intval = returnSymbTab($1.symbol, Variable);
 		   gera(STO,$3.intval,$1.intval,NADA);
 	           printf("\n"); }
-     | _PRINT _ABREPAR L _FECHAPAR {                                      
+     | _PRINT _ABREPAR E _FECHAPAR {                                      
                                     gera(PRINT, $3.intval, NADA, NADA);
 				    printf("\n"); }
 M    : /* empty */ {
