@@ -148,11 +148,15 @@ typedef enum {
 	ADD,
 	SUB,
 	MUL,
+	DIV,
 	STO,
 	PRINT,
 	J,
 	JF
 } Operador;
+
+char nomeOperador  [8] [7] = {
+"ADD","SUB","MUL","DIV","STO","PRINT","J","JF"};
 
 struct Quadrupla {
 	Operador        op;
@@ -180,12 +184,13 @@ void remenda (int endQuad, Operador codop,int end1,int end2,int end3){
 
 void imprimeQuadrupla(){
   int r; 
+  printf("> Tabela de Quadruplas \n");
   for(r=0;r<prox;r++) 
-    printf("%d %d %d %d\n",
-            quadrupla[r].op,                
-               quadrupla[r].operando1,
-                  quadrupla[r].operando2,
-                     quadrupla[r].operando3);  
+    printf("> %s %d %d %d\n",
+              nomeOperador[quadrupla[r].op],                
+                 quadrupla[r].operando1,
+                    quadrupla[r].operando2,
+                       quadrupla[r].operando3); 
 }; //da funcao imprimeQuadrupla
 
 void finaliza () {
@@ -221,7 +226,7 @@ int main()
 
 %token _ATRIB _EOF _ABREPAR _FECHAPAR _PTVIRG
 %token _MAIS _MENOS _MULT _DIVID _PRINT
-%token _IF _ELSE _THEN _WHILE _DO
+%token _IF _ELSE _THEN _WHILE _DO _INT
 %token _VIRG _ABRECHA _FECHACHA
 %token _ERRO
 %token _N _V
@@ -232,55 +237,66 @@ int main()
 regras da gramatica e acoes semanticas
 */
 
-P    : D _ABRECHA C _FECHACHA      
-     |  /* empty */ {finaliza (); }   
+P    : D _ABRECHA C _FECHACHA { 
+								finaliza (); }
+     |  /* empty */  								
      ;
 D    : D V _PTVIRG 
-     | V _PTVIRG          
+     | V _PTVIRG
+	 | /* empty */ 
      ;
 V    : V _VIRG _V {
-		insertSymbTab($1.symbol, Variable); }
+		insertSymbTab($3.symbol, Variable); }
      | _INT _V {	
-		insertSymbTab($1.symbol, Variable); }  		
+		insertSymbTab($2.symbol, Variable); }  	
+     ;	
 B    : _ABRECHA  C _FECHACHA
-     | S     
+     | S    
+     ;
 C    : C _PTVIRG S
      | S
+     ;
 S    : _IF _ABREPAR E _FECHAPAR _THEN M B _ELSE M B {
                                                      remenda($6.intval,JF,$3.intval,$9.intval+1,NADA);
 					             remenda($9.intval,J,prox,NADA,NADA); }                                                     													 
      | _IF _ABREPAR E _FECHAPAR _THEN M B           {
                                                      remenda($6.intval,JF,$3.intval,prox,NADA); }
-     | _WHILE N _ABREPAR E _FECHAPAR _DO M B        {
-					             gera(J, $2.intval, NADA, NADA); 
-						     remenda($6.intval, JF, E.intval, prox, NADA); }
+     | _WHILE N _ABREPAR E _FECHAPAR _DO M B {
+											gera(J, $2.intval, NADA, NADA); 
+											remenda($7.intval, JF, $4.intval, prox, NADA); }
      | _V _ATRIB E {
-                   $1.intval = returnSymbTab($1.symbol, Variable);
-		   gera(STO,$3.intval,$1.intval,NADA);
-	           printf("\n"); }
+					$1.intval = returnSymbTab($1.symbol, Variable);
+					gera(STO,$3.intval,$1.intval,NADA);
+					printf("\n"); }
      | _PRINT _ABREPAR E _FECHAPAR {                                      
                                     gera(PRINT, $3.intval, NADA, NADA);
-				    printf("\n"); }
+									printf("\n"); }
+     ;
 M    : /* empty */ {
                     $$.intval = prox;
                     prox++; }
+     ;
 N    : /* empty */ {
-                    $$.intval = prox; }					
-L    : L _VIRG E 
-     | E	      
+                    $$.intval = prox; }	
+     ;	   
 E    : E _MAIS T {
                   $$.intval = temp(); 
-		  gera (ADD,$1.intval,$3.intval,$$.intval); }
+				  gera (ADD,$1.intval,$3.intval,$$.intval); }
      | E _MENOS T{    
                   $$.intval = temp(); 
 		  gera (SUB,$1.intval,$3.intval,$$.intval); }
      | T	 {	
                   $$.intval = $1.intval; }
+     ;
 T    : T _MULT F {	
                   $$.intval = temp(); 
-		  gera (MUL,$1.intval,$3.intval,$$.intval); }	
+				  gera (MUL,$1.intval,$3.intval,$$.intval); }
+	  | T _DIVID F {
+                  $$.intval = temp(); 
+				  gera (DIV,$1.intval,$3.intval,$$.intval); }
       | F	 {	
                   $$.intval = $1.intval; }
+     ;
 F    : _V {
            $$.intval=returnSymbTab($1.symbol, Variable); }
      | _N {

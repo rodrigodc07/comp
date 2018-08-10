@@ -13,6 +13,7 @@ ALFA 		[A-Za-z_]
 PLUS            [\+]
 MINUS           [\-]
 TIMES           [\*]
+DIVIDE          [/]
 DIGIT           [0-9]
 NUMBER          ({DIGIT}+)
 PRINT           "print"
@@ -21,9 +22,10 @@ ELSE            "else"
 THEN            "then"
 WHILE           "while"
 DO              "do"
-IDENT		{ALFA}({ALFA}|{DIGIT})*
+INT				"int"
+IDENT			{ALFA}({ALFA}|{DIGIT})*
 WS              [ \t]*
-ATRIB		        "="
+ATRIB			"="
 LP              "("
 RP              ")"
 LC              "{"
@@ -33,65 +35,71 @@ VIRG            ","
 RET             [\n]
 
 %%
-{WS} 		  {
+{WS} 		{
 		/* eat up white space */ 
-		}
+			}
 {PLUS} 		{
 		return _MAIS; 		
-}
+			}
 {TIMES} 	{
 		return _MULT; 
-		}
+			}
 {MINUS} 	{
 		return _MENOS; 		
-    } 
+    		} 
+{DIVIDE}    {
+        return _DIVID;
+            }
 {ATRIB} 	{		
-    return _ATRIB; 		
-    }
-{LP} 		  {		
-    return _ABREPAR; 		
-    }
-{RP} 		  {
+    	return _ATRIB; 		
+    		}
+{LP} 		{		
+    	return _ABREPAR; 		
+    		}
+{RP} 		{
 		return _FECHAPAR; 	
-    }
-{LC} 		  {		
-    return _ABRECHA; 		
-    }
-{RC} 		  {
+    		}
+{LC} 		{		
+    	return _ABRECHA; 		
+    		}
+{RC} 		{
 		return _FECHACHA; 
-		}
-{PTV} 	  {
+			}
+{PTV} 	  	{
 		return _PTVIRG;		
-    }
-{VIRG} 	  {		
-    return _VIRG;		
-    }
+    		}
+{VIRG} 	  	{		
+    	return _VIRG;		
+    		}
 {NUMBER}	{		
-    strcpy(yylval.t.symbol, yytext);
+    	strcpy(yylval.t.symbol, yytext);
 		return _N;		
-    }
+    		}
 {PRINT} 	{		
-    return _PRINT;	
-		}
-{IF} 		  {
+    	return _PRINT;	
+			}
+{IF} 		{
 		return _IF;		
-    }
+    		}
 {ELSE} 		{
 		return _ELSE;		
     }
 {THEN} 		{
 		return _THEN;		
-    }
+    		}
 {WHILE} 	{
 		return _WHILE;
-		}
-{DO} 		  {
+			}
+{DO} 		{
 		return _DO;
-		}
+			}
+{INT}       {
+		return _INT;
+                }
 {IDENT} 	{		
-    strcpy(yylval.t.symbol, yytext);		
-    return _V;
-		}
+    	strcpy(yylval.t.symbol, yytext);		
+    	return _V;
+			}
 {RET} 		{
 		return yytext[0];
-		}
+			}
