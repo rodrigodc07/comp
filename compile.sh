@@ -1,3 +1,3 @@
-bison -d g6.y
-flex g6.l
-cc lex.yy.c g6.tab.c -o g6
+bison -d trab.y
+flex trab.l
+cc lex.yy.c trab.tab.c -o trab
